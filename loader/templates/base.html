@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{url_for('static', filename='internal/stylin.css')}}">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.0.1/dist/ag-grid-community.min.js"></script>
+    <script>const __basePath = './';</script>
+
+    <title>{% block title%}WIKIDATA LOADER{%endblock title%}</title>
+    {% block add %}{% endblock add %}
+</head>
+<body>
+{% include '_nav.html' %}
+<h1>{% block header %}This is the default header{% endblock header %}</h1>
+{% block content %}
+{% endblock content %}
+</body>
+</html>

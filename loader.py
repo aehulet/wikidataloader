@@ -226,7 +226,7 @@ def update_items_process(origin_file):
         write_table(origin_file, table, Stage.update)
 
 
-if __name__ == '__main__':
-    # reconcile_process('new_foods.csv')
-    # add_items_process('new_foods.csv')
-    update_items_process('new_foods.csv')
+# if __name__ == '__main__':
+    # reconcile_process('files/new_foods.csv')
+    # add_items_process('files/new_foods.csv')
+    # update_items_process('files/new_foods.csv')
