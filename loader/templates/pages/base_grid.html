@@ -1,8 +1,48 @@
 {% extends 'base.html' %}
 
 {% block header %}CSV Editor{% endblock header %}
-{% block content %}
-	<div id="myGrid" class="ag-theme-quartz">
+{% block side_content %}
+	<div id="tree_wrapper">
+		<div id="tree_buttons">
+			<form id="load_form" action="/load_file" method="post">
+				<input type="text" id="file_to_load" name="file_to_load">
+				<input type="submit" value="Load File">
+			</form>
+		</div>
+		<div id="the_tree" ></div>
+	</div>
+	<script>
+		const tree = {{ tree_data }}
+		let dat;
+		$('#the_tree')
+				.on('changed.jstree', function (e, data) {
+					dat = data.instance.get_node(data.selected[0]).text;
+					//alert(dat);
+					if (dat.includes('.csv')) {
+						$('#file_to_load').val(dat);
+					} else {
+						$('#file_to_load').val('');
+					}
+				})
+				.jstree({
+			'core' : {
+				"themes" : { "stripes" : true },
+				'data' : [
+					{
+						"text" : "Files",
+						"icon" : "jstree-folder",
+						"children" : tree
+					}
+				]
+			}
+		});
+
+	</script>
+{% endblock side_content %}
+
+{% block main_content %}
+	<div id="grid_wrapper">
+		<div id="myGrid" class="ag-theme-quartz"></div>
 	</div>
 	<script src="static/internal/grid.js"></script>
-{% endblock content %}
+{% endblock main_content %}

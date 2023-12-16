@@ -1,7 +1,7 @@
 // Grid API: Access to Grid API methods
 let gridApi;
 
-// Grid Options: Contains all of the grid configurations
+// Grid Options: Contains all grid configurations
 const gridOptions = {
   // Row Data: The data to be displayed.
   defaultColDef: {
