@@ -41,8 +41,28 @@
 {% endblock side_content %}
 
 {% block main_content %}
+	<div id="current_file">{{ current_file }}</div>
 	<div id="grid_wrapper">
 		<div id="myGrid" class="ag-theme-quartz"></div>
 	</div>
-	<script src="static/internal/grid.js"></script>
+	<script>
+		// Grid API: Access to Grid API methods
+		let gridApi;
+
+		// Grid Options: Contains all grid configurations
+		const gridOptions = {
+		  // Row Data: The data to be displayed.
+		  defaultColDef: {
+			filter: true,
+			editable: true
+		  },
+		  pagination: true,
+		  rowData: {{ row_data }},
+		  // Column Definitions: Defines & controls grid columns.
+		  columnDefs: {{ header_data }}
+		};
+
+		// Create Grid: Create new grid within the #myGrid div, using the Grid Options object
+		gridApi = agGrid.createGrid(document.querySelector('#myGrid'), gridOptions);
+	</script>
 {% endblock main_content %}

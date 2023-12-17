@@ -9,11 +9,12 @@ def grid():
     from . import files
     from markupsafe import Markup
 
-    if curr_file:
-        print(f'Current file: {curr_file}')
-
+    fm = files.FileManager(curr_file)
     td = Markup(files.build_tree())
-    return render_template('pages/base_grid.html', tree_data=td)
+
+    return render_template('pages/base_grid.html',
+                           tree_data=td, row_data=Markup(fm.get_data()), header_data=Markup(fm.get_header()),
+                           current_file=curr_file)
 
 
 @bp.route('/load_file', methods=['POST'])
