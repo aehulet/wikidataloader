@@ -2,13 +2,14 @@ import datetime
 import logging
 import markupsafe
 
+logging.basicConfig(filename='wdl-error.log', encoding='utf-8', level=logging.ERROR)
+
 
 def catch_err(e, proc=None):
     """General function for error processing."""
-    # generic handler for error messages and logging
 
     dt = datetime.datetime.now()
-    the_log = logging.getLogger(__name__)
+    the_log = logging.getLogger('wdl-error')
     try:
         the_message = str(e.args)
         the_log.error(str(dt) + ": " + the_message + ", " + proc)

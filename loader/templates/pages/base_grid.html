@@ -6,23 +6,32 @@
 		<div id="tree_buttons">
 			<form id="load_form" action="/load_file" method="post">
 				<input type="text" id="file_to_load" name="file_to_load">
+				<input type="text" id="node_id" name="node_id">
 				<input type="submit" value="Load File">
 			</form>
 		</div>
 		<div id="the_tree" ></div>
 	</div>
 	<script>
-		const tree = {{ tree_data }}
-		let dat;
+		const tree = {{ tree_data }};
+		let sel_json = {{ select_json }};
+		let selected_node = sel_json["selected"];
+		let n_json = {{ node_json }};
+		let node_id = n_json["node_id"]
+		let node, dat;
 		$('#the_tree')
 				.on('changed.jstree', function (e, data) {
+					node = data.instance.get_node(data.selected[0]);
 					dat = data.instance.get_node(data.selected[0]).text;
-					//alert(dat);
 					if (dat.includes('.csv')) {
 						$('#file_to_load').val(dat);
+						$('#node_id').val(node.id)
 					} else {
 						$('#file_to_load').val('');
 					}
+				})
+				.on('ready.jstree', function (e, data){
+					selectIt();
 				})
 				.jstree({
 			'core' : {
@@ -35,34 +44,45 @@
 					}
 				]
 			}
-		});
+		})
 
+	function selectIt() {
+		$('#the_tree').jstree('select_node', node_id);
+
+	}
 	</script>
+
 {% endblock side_content %}
 
 {% block main_content %}
-	<div id="current_file">{{ current_file }}</div>
+	<div id="column_editor"><button onclick="updateColumns()">save</button><br></div>
+	<div id="current_file">{{ current_file }} {{ err_msg }}</div>
+	<button onclick="loadColumns()">change column headers</button>
+	<button onclick="writeGridData()">SAVE</button>
 	<div id="grid_wrapper">
 		<div id="myGrid" class="ag-theme-quartz"></div>
 	</div>
 	<script>
 		// Grid API: Access to Grid API methods
 		let gridApi;
-
+		let header_json = {{ header_data }};
 		// Grid Options: Contains all grid configurations
-		const gridOptions = {
-		  // Row Data: The data to be displayed.
-		  defaultColDef: {
-			filter: true,
-			editable: true
-		  },
-		  pagination: true,
-		  rowData: {{ row_data }},
-		  // Column Definitions: Defines & controls grid columns.
-		  columnDefs: {{ header_data }}
-		};
+		if (selected_node !== 'None') {
+			const gridOptions = {
+			  // Row Data: The data to be displayed.
+			  defaultColDef: {
+				filter: true,
+				editable: true
+			  },
+			  pagination: true,
+			  rowData: {{ row_data }},
+			  // Column Definitions: Defines & controls grid columns.
+			  columnDefs: {{ header_data }}
+			}
 
-		// Create Grid: Create new grid within the #myGrid div, using the Grid Options object
-		gridApi = agGrid.createGrid(document.querySelector('#myGrid'), gridOptions);
+			// Create Grid: Create new grid within the #myGrid div, using the Grid Options object
+			gridApi = agGrid.createGrid(document.querySelector('#myGrid'), gridOptions);
+		}
+
 	</script>
 {% endblock main_content %}

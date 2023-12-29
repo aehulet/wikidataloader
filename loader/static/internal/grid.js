@@ -1,54 +1,26 @@
-// Grid API: Access to Grid API methods
-let gridApi;
+function writeGridData() {
+    let xhr = new XMLHttpRequest();
+    const dat = [];
+    gridApi.forEachNode((rowNode, index) => {
+        dat.push(rowNode.data)
+    });
+    xhr.open("POST", '/write_file', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(dat));
+}
 
-// Grid Options: Contains all grid configurations
-const gridOptions = {
-  // Row Data: The data to be displayed.
-  defaultColDef: {
-    filter: true,
-    editable: true
-  },
-  pagination: true,
-  rowData: [
-    {
-      mission: 'Voyager',
-      company: 'NASA',
-      location: 'Cape Canaveral',
-      date: '1977-09-05',
-      rocket: 'Titan-Centaur ',
-      price: 86580000,
-      successful: true,
-    },
-    {
-      mission: 'Apollo 13',
-      company: 'NASA',
-      location: 'Kennedy Space Center',
-      date: '1970-04-11',
-      rocket: 'Saturn V',
-      price: 3750000,
-      successful: false,
-    },
-    {
-      mission: 'Falcon 9',
-      company: 'SpaceX',
-      location: 'Cape Canaveral',
-      date: '2015-12-22',
-      rocket: 'Falcon 9',
-      price: 9750000,
-      successful: true,
-    },
-  ],
-  // Column Definitions: Defines & controls grid columns.
-  columnDefs: [
-    { field: 'mission' },
-    { field: 'company' },
-    { field: 'location' },
-    { field: 'date' },
-    { field: 'price' },
-    { field: 'successful' },
-    { field: 'rocket' },
-  ],
-};
+function loadColumns() {
+    let col_ed = document.getElementById('column_editor');
+    col_ed.style.display = 'block';
+    for (let elem of header_json) {
+        let col_name = elem['field'];
+        let input_str = "<input type='text' id='" + col_name + "' value='" + col_name + "'><br>";
+        $('#column_editor').append(input_str);
+    }
+}
 
-// Create Grid: Create new grid within the #myGrid div, using the Grid Options object
-gridApi = agGrid.createGrid(document.querySelector('#myGrid'), gridOptions);
+function updateColumns() {
+    let col_ed = document.getElementById('column_editor');
+    col_ed.style.display = 'none';
+}
+

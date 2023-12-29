@@ -19,48 +19,54 @@ class FileManager:
         try:
             self.filename = filename
             self.filepath = get_file_path(filename)
-            with open(self.filepath, 'r') as f:
-                loaded = self.load_data(f)
-                if not loaded:
-                    f.close()
-                    raise Exception('Application was unable correctly process the selected file.')
+            if not self.filepath:
+                raise Exception(f'Application was unable to locate {self.filename}.')
         except Exception as e:
             catch_err(e, 'FileManager.init')
 
-    def load_data(self, f):
+    def load_data(self):
         """Loads csv data into header and data properties of FileManager object."""
         try:
-            dat = f.readlines()
-            header_loaded = False
-            head_list = []
-            line_dict = {}
-            line_list = []
-            for line in dat:
-                if not header_loaded:
-                    if line.split(',').__len__() >= 1:
-                        head = line.split(',')
-                        for i in head:
-                            head_list.append({"field": i})
-                    else:
-                        raise Exception('Selected file has insufficient columns.')
-                    header_loaded = True
-                    self.header = json.dumps(head_list)
-                    self.header_list = head
-                    self.columns = head.__len__()
-                else:
-                    vals = line.split(',')
-                    for pos in range(self.columns):
-                        line_dict[self.header_list[pos]] = vals[pos]
-                    line_list.append(line_dict)
+            if self.filepath:
+                with open(self.filepath) as f:
+                    dat = f.readlines()
+                    header_loaded = False
+                    head_list = []
                     line_dict = {}
+                    line_list = []
+                    for line in dat:
+                        if not header_loaded:
+                            if line.split(',').__len__() >= 1:
+                                head = line[:-1].split(',')
+                                for i in head:
+                                    head_list.append({"field": i})
+                            else:
+                                raise Exception('Selected file has insufficient columns.')
+                            header_loaded = True
+                            self.header = json.dumps(head_list)
+                            self.header_list = head
+                            self.columns = head.__len__()
+                        else:
+                            end = line[len(line) - 1:len(line)]
+                            if end == '\n':
+                                vals = line[:-1].split(',')
+                            else:
+                                vals = line[:len(line)].split(',')
 
-            self.rows = line_list.__len__()
-            if self.rows > 0:
-                self.good_format = True
-                self.data = json.dumps(line_list)
-                return True
+                            for pos in range(self.columns):
+                                line_dict[self.header_list[pos]] = vals[pos]
+                            line_list.append(line_dict)
+                            line_dict = {}
+
+                    self.rows = line_list.__len__()
+                    if self.rows > 0:
+                        self.good_format = True
+                        self.data = json.dumps(line_list)
+                        return True
+                    else:
+                        raise Exception('The selected file has no data rows.')
             else:
-                raise Exception('The selected file has no data rows.')
+                raise Exception(f'Could not open file {self.filepath}.')
         except Exception as e:
             catch_err(e, 'FileManager.load_data')
             return False
@@ -100,7 +106,6 @@ def list_files(directory):
 
 
 def build_tree():
-    import json
     top_list = list_files('files')
     struct = []
     for fso in top_list:
@@ -116,6 +121,43 @@ def build_tree():
 
 
 def get_file_path(filename):
+    the_path = ''
     for root, dirs, files in os.walk(HOME_DIR + '/files'):
         if filename in files:
-            return os.path.join(root, filename)
+            the_path = os.path.join(root, filename)
+    if the_path == '':
+        return False
+    else:
+        return the_path
+
+
+def write_grid_to_file(filename, grid):
+    try:
+        rows = grid.__len__()
+        the_file = get_file_path(filename)
+        if the_file:
+            if rows > 0:
+                keys_str = ','.join(grid[0].keys())
+                keys_str += '\n'
+                with open(the_file, 'w') as f:
+                    f.write(keys_str)
+                    for g in grid:
+                        g_str = ''
+                        for k, v in g.items():
+                            g_str += v + ','
+                        g_str = g_str[:-1] + '' + '\n'
+                        f.write(g_str)
+                    f.close()
+                    return True
+
+            else:
+                print("Unable to save empty file.")
+                return False
+        else:
+            raise FileNotFoundError
+    except FileNotFoundError:
+        print("File not found")
+        return False
+    except Exception as e:
+        catch_err(e, 'files.write_grid_to_file')
+        return False
