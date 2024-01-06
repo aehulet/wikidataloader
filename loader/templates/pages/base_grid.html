@@ -4,11 +4,15 @@
 {% block side_content %}
 	<div id="tree_wrapper">
 		<div id="tree_buttons">
+			<button class='btn' id="open_btn" onclick="openFileDialog()">New</button>
+			<input type="file" id="file_opener" />
 			<form id="load_form" action="/load_file" method="post">
 				<input type="text" id="file_to_load" name="file_to_load">
 				<input type="text" id="node_id" name="node_id">
-				<input type="submit" value="Load File">
+				<input type="submit" id="load_btn" value="Load File">
+
 			</form>
+
 		</div>
 		<div id="the_tree" ></div>
 	</div>
@@ -19,46 +23,79 @@
 		let n_json = {{ node_json }};
 		let node_id = n_json["node_id"]
 		let node, dat;
+		let  block_cascade = false;
+
 		$('#the_tree')
-				.on('changed.jstree', function (e, data) {
+				.on('ready.jstree', function (e, data){
+					selectReloadedNode();
+				})
+				.on('select_node.jstree', function (e, data) {
+					let f = $('#load_form');
 					node = data.instance.get_node(data.selected[0]);
 					dat = data.instance.get_node(data.selected[0]).text;
 					if (dat.includes('.csv')) {
 						$('#file_to_load').val(dat);
-						$('#node_id').val(node.id)
+						$('#node_id').val(node.id);
+						if (block_cascade === true) {
+							block_cascade = false;
+						} else {
+							//save changes if form data has been edited. See grid.cellValueChanged()
+							if (okToNavigate) {
+								if (isDirty) {
+									writeGridData();
+									isDirty = false;
+									f.submit();
+								} else {
+									f.submit();
+								}
+							} else {
+								alert("Press Stop Editing before opening another file.");
+								deselectNode(node.id)
+								selectReloadedNode();
+							}
+						}
 					} else {
 						$('#file_to_load').val('');
+						$('#node_id').val('');
 					}
-				})
-				.on('ready.jstree', function (e, data){
-					selectIt();
 				})
 				.jstree({
-			'core' : {
-				"themes" : { "stripes" : true },
-				'data' : [
-					{
-						"text" : "Files",
-						"icon" : "jstree-folder",
-						"children" : tree
+					'core' : {
+						"themes" : { "stripes" : true },
+						'data' : [
+							{
+								"text" : "Files",
+								"icon" : "jstree-folder",
+								"children" : tree
+							}
+						]
 					}
-				]
-			}
-		})
+				})
 
-	function selectIt() {
-		$('#the_tree').jstree('select_node', node_id);
-
+	function selectReloadedNode() {
+		if (node_id !== "None") {
+			block_cascade = true;
+			$('#the_tree').jstree('select_node', node_id);
+		}
 	}
+	function deselectNode(the_node) {
+		$('#the_tree').jstree('deselect_node', the_node);
+	}
+
 	</script>
 
 {% endblock side_content %}
 
 {% block main_content %}
-	<div id="column_editor"><button onclick="updateColumns()">save</button><br></div>
-	<div id="current_file">{{ current_file }} {{ err_msg }}</div>
-	<button onclick="loadColumns()">change column headers</button>
-	<button onclick="writeGridData()">SAVE</button>
+	<div id="column_editor">
+		<button class='btn' onclick="updateColumns()">save</button>
+		<span class="close">&times;</span>
+		<br>
+	</div>
+	<div id="err_msg">{{ err_msg }}</div>
+	<span id="current_file"> {{ current_file }} </span>
+	<button class='btn' id="edit_btn" onclick="manageEdits()">Start Editing</button>
+	<button class='btn' id="header_btn" onclick="loadColumns()">Change Headers</button>
 	<div id="grid_wrapper">
 		<div id="myGrid" class="ag-theme-quartz"></div>
 	</div>
@@ -69,15 +106,18 @@
 		// Grid Options: Contains all grid configurations
 		if (selected_node !== 'None') {
 			const gridOptions = {
-			  // Row Data: The data to be displayed.
 			  defaultColDef: {
 				filter: true,
 				editable: true
 			  },
 			  pagination: true,
-			  rowData: {{ row_data }},
+			  //editType: 'fullRow',
+				suppressClickEdit: true,
+				rowData: {{ row_data }},
 			  // Column Definitions: Defines & controls grid columns.
-			  columnDefs: {{ header_data }}
+			  columnDefs: {{ header_data }},
+			onCellValueChanged: cellValueChanged,
+			onCellEditingStopped: cellEditingStopped,
 			}
 
 			// Create Grid: Create new grid within the #myGrid div, using the Grid Options object

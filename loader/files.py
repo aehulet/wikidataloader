@@ -161,3 +161,23 @@ def write_grid_to_file(filename, grid):
     except Exception as e:
         catch_err(e, 'files.write_grid_to_file')
         return False
+
+
+def write_header_to_file(filename, header):
+    try:
+        the_file = get_file_path(filename)
+        if the_file:
+            with open(the_file, 'r') as f:
+                data = f.readlines()
+                data[0] = header + '\n'
+
+            with open(the_file, 'w') as g:
+                g.writelines(data)
+
+            return True
+        else:
+            print(f"Could not locate {the_file}.")
+            return False
+    except Exception as e:
+        catch_err(e, 'files.write_header_to_file')
+        return False

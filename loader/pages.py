@@ -6,12 +6,14 @@ bp = Blueprint('pages', __name__)
 curr_file = 'Select a file to open.'
 selected = False
 node_id = ''
+good_write = True
 
 
 @bp.route('/')
 def grid():
     from . import files
     from markupsafe import Markup
+    global good_write
     head = Markup('{}')
     rows = Markup('{}')
     select_json = Markup(json.dumps({"selected": "None"}))
@@ -19,12 +21,16 @@ def grid():
     err_msg = ''
 
     try:
+        td = Markup(files.build_tree())
+        fm = files.FileManager(curr_file)
         if selected:
             select_json = Markup(json.dumps({"selected": curr_file}))
             node_json = Markup(json.dumps({"node_id": node_id}))
 
-        td = Markup(files.build_tree())
-        fm = files.FileManager(curr_file)
+        if not good_write:
+            good_write = True
+            raise Exception('The file update process failed. Please try again, reload, or reimport the file.')
+
         if fm.filepath:
             fm.load_data()
             if fm.good_format:
@@ -58,10 +64,29 @@ def load_file():
 @bp.route('/write_file', methods=['POST'])
 def write_file():
     from .files import write_grid_to_file
+    global good_write
     data = request.get_json()
-    print(data)
-    write_grid_to_file(curr_file, data)
+    # print(data)
+    good_write = write_grid_to_file(curr_file, data)
 
+    return redirect('/')
+
+
+@bp.route('/write_header', methods=['POST'])
+def write_header():
+    from .files import write_header_to_file
+    global good_write, selected
+    byte_data = request.get_data()
+    string_data = byte_data.decode('UTF-8')
+    selected = True
+    good_write = write_header_to_file(curr_file, string_data)
+
+    return redirect('/')
+
+
+@bp.route('/reload_me', methods=['POST', 'GET'])
+def reload_me():
+    print('redirecting to root...')
     return redirect('/')
 
 

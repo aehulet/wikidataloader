@@ -1,5 +1,84 @@
 #column_editor {
     display: none;
+    margin: 2px;
+    padding: 2px;
+    background-color: white;
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+  	-webkit-border-radius: 6px;
+    position: fixed;
+    left: 30%;
+    top: 75px;
+  	border: 1px solid #808074;
+	box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+  	pointer-events: all;
+  	z-index: 2;
+}
+
+h1 {
+    font-family: sans-serif;
+}
+
+#current_file {
+    font-size: 18px;
+    font-style: italic;
+}
+
+.btn {
+    height: 28px;
+    background-color: white;
+    color: #4c7391;
+    font-size: 14px;
+    border: 1px solid #666666;
+    border-radius: 3px;
+}
+
+.btn:hover,
+.btn:focus {
+    color: #1c2b36;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#edit_btn, #header_btn {
+    float: right;
+}
+
+/* close 'x' buttons */
+.close {
+    color: #aaa;
+    float: right;
+    margin: 2px;
+	font-size: 18px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#file_opener {
+    display: none;
+}
+
+#open_file_span {
+    float: left;
+    margin-right: 5px;
+}
+
+/* leave load file button hidden; submit action
+ only called from code. */
+#load_btn {
+    display: none;
+}
+
+/* all visible input boxes */
+.txt {
+    background-color: #cccccc;
+    border-style: hidden;
 }
 
 #grid_wrapper {
@@ -14,8 +93,6 @@
     min-width:200px;
     margin:0 auto;
     padding:20px 10px;
-    font-size:12px;
-    font-size:1.4em;
 }
 
 #the_tree {
@@ -23,8 +100,11 @@
     border:1px solid silver;
     min-height:100px;
     position: relative;
+    font-family: sans-serif;
+    font-size: medium;
     left: 0;
     top: 0;
+    border-radius: 6px;
 }
 
 #myGrid {
@@ -33,7 +113,7 @@
     overflow-x: scroll;
 }
 
-#node_id {
+#node_id, #file_to_load {
     display: none;
 }
 
