@@ -1,19 +1,26 @@
 {% extends 'base.html' %}
 
-{% block header %}CSV Editor{% endblock header %}
+{% block header %}Wikidata CSV Loading Tool{% endblock header %}
 {% block side_content %}
+	<div id="tree_buttons">
+		<form id="new_file_form" action="/new_file"
+			  method="post"
+			  enctype="multipart/form-data">
+			<input type="file" id="file_opener" name="new_file" accept=".csv" oninput="checkSelect()"/>
+			<input type="submit" id="upload_btn"  class="btn" value="Upload">
+		</form>
+
+		<form id="load_form" action="/load_file" method="post">
+			<input type="text" id="file_to_load" name="file_to_load">
+			<input type="text" id="node_id" name="node_id">
+			<input type="submit" id="load_btn" value="Load File">
+		</form>
+		<button id="open_btn"
+				title="Add a csv file for processing"
+				onclick="openFileDialog()">import...</button>
+	</div>
+
 	<div id="tree_wrapper">
-		<div id="tree_buttons">
-			<button class='btn' id="open_btn" onclick="openFileDialog()">New</button>
-			<input type="file" id="file_opener" />
-			<form id="load_form" action="/load_file" method="post">
-				<input type="text" id="file_to_load" name="file_to_load">
-				<input type="text" id="node_id" name="node_id">
-				<input type="submit" id="load_btn" value="Load File">
-
-			</form>
-
-		</div>
 		<div id="the_tree" ></div>
 	</div>
 	<script>
@@ -87,15 +94,30 @@
 {% endblock side_content %}
 
 {% block main_content %}
-	<div id="column_editor">
-		<button class='btn' onclick="updateColumns()">save</button>
+	<div id="col_editor">
+		<button id='col_ed_btn' class='btn' onclick="updateColumns()">save</button>
 		<span class="close">&times;</span>
+		<br><br>
+		<div>EDIT COLUMN PROPERTIES</div>
 		<br>
 	</div>
+
 	<div id="err_msg">{{ err_msg }}</div>
 	<span id="current_file"> {{ current_file }} </span>
+
+	<div id="process_menu">
+		<ul class="no-bullets">
+			<li id="step1" class="menu_item" onclick="addOutputColumns()">Step 1 - add output columns</li>
+			<li id="step2" class="menu_item">Step 2 - reconcile data</li>
+			<li id="step3" class="menu_item">Step 3 - add new entities</li>
+			<li id="step4" class="menu_item">Step 4 - upload items</li>
+		</ul>
+	</div>
+
+	<button class="btn" id="menu_btn" onclick="hideShowMenu()">menu</button>
 	<button class='btn' id="edit_btn" onclick="manageEdits()">Start Editing</button>
-	<button class='btn' id="header_btn" onclick="loadColumns()">Change Headers</button>
+	<button class='btn' id="header_btn" onclick="loadEditor()">Column Properties</button>
+
 	<div id="grid_wrapper">
 		<div id="myGrid" class="ag-theme-quartz"></div>
 	</div>
@@ -103,6 +125,9 @@
 		// Grid API: Access to Grid API methods
 		let gridApi;
 		let header_json = {{ header_data }};
+		let outputs = {{ outputs_added }};
+		let meta_json = {{ metadata }};
+		let num_cols = {{ num_columns }};
 		// Grid Options: Contains all grid configurations
 		if (selected_node !== 'None') {
 			const gridOptions = {

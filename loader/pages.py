@@ -7,19 +7,23 @@ curr_file = 'Select a file to open.'
 selected = False
 node_id = ''
 good_write = True
+err_message = ''
 
 
 @bp.route('/')
 def grid():
     from . import files
     from markupsafe import Markup
-    global good_write
+    global good_write, err_message
     head = Markup('{}')
     rows = Markup('{}')
     select_json = Markup(json.dumps({"selected": "None"}))
     node_json = Markup(json.dumps({"node_id": "None"}))
-    err_msg = ''
-
+    outputs_added_json = Markup(json.dumps({"outputs": "None"}))
+    num_columns = Markup(json.dumps({"num_columns": "None"}))
+    metadata = None
+    err_msg = err_message
+    err_message = ''
     try:
         td = Markup(files.build_tree())
         fm = files.FileManager(curr_file)
@@ -36,19 +40,23 @@ def grid():
             if fm.good_format:
                 head = Markup(fm.get_header())
                 rows = Markup(fm.get_data())
+                outputs_added_json = Markup(json.dumps({"outputs": fm.outputs_added}))
+                metadata = Markup(fm.get_metadata_json())
+                num_columns = Markup(fm.columns)
         else:
             if selected:
                 raise Exception('There is a problem with the location or format of this file.')
 
         return render_template('pages/base_grid.html', tree_data=td,
                                current_file=curr_file, node_json=node_json, select_json=select_json,
-                               row_data=rows, header_data=head, err_msg=err_msg)
+                               row_data=rows, header_data=head, outputs_added=outputs_added_json,
+                               metadata=metadata, num_columns=num_columns, err_msg=err_msg)
     except Exception as e:
         err_msg = str(e)
         catch_err(e, 'pages.grid')
         return render_template('pages/base_grid.html', tree_data=td,
                                current_file=curr_file, node_json=node_json, select_json=select_json,
-                               row_data=rows, header_data=head, err_msg=err_msg)
+                               row_data=rows, header_data=head, outputs_added=outputs_added_json, err_msg=err_msg)
 
 
 @bp.route('/load_file', methods=['POST'])
@@ -63,25 +71,62 @@ def load_file():
 
 @bp.route('/write_file', methods=['POST'])
 def write_file():
-    from .files import write_grid_to_file
+    from .files import FileManager
     global good_write
-    data = request.get_json()
-    # print(data)
-    good_write = write_grid_to_file(curr_file, data)
+    fm = FileManager(curr_file)
+    fm.load_data()
+    good_write = fm.write_data(request.get_json())
 
     return redirect('/')
 
 
-@bp.route('/write_header', methods=['POST'])
-def write_header():
-    from .files import write_header_to_file
+@bp.route('/write_metadata', methods=['POST'])
+def write_metadata():
+    from .files import FileManager
     global good_write, selected
-    byte_data = request.get_data()
-    string_data = byte_data.decode('UTF-8')
+    fm = FileManager(curr_file)
+    fm.load_data()
     selected = True
-    good_write = write_header_to_file(curr_file, string_data)
+    good_write = fm.write_metadata(request.get_json())
 
     return redirect('/')
+
+
+@bp.route('/new_file', methods=['POST'])
+def upload_new_file():
+    from .files import process_new_file
+    global curr_file, err_message
+    try:
+        fileblob = request.files['new_file']
+        if not fileblob.filename == '':
+            process_new_file(fileblob)
+            curr_file = fileblob.filename
+        else:
+            raise Exception('No file selected')
+
+        return redirect('/')
+
+    except Exception as e:
+        catch_err(e, 'pages.upload_new_file')
+        err_message = str(e)
+        return redirect('/')
+
+
+@bp.route('/add_outputs', methods=['POST'])
+def add_output_columns():
+    from .files import FileManager
+    global curr_file, err_message
+    try:
+        fm = FileManager(curr_file)
+        fm.load_data()
+        if not fm.add_output_columns():
+            err_message = 'The output columns could not be added.'
+        return redirect('/')
+
+    except Exception as e:
+        err_message = catch_err(e, 'pages.add_output_columns')
+
+        return redirect('/')
 
 
 @bp.route('/reload_me', methods=['POST', 'GET'])

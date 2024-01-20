@@ -1,0 +1,25 @@
+{
+	"init": {
+		"complete": "false",
+		"errors": "false",
+		"last_run": ""
+	},
+	"reconcile": {
+		"complete": "false",
+		"errors": "false",
+		"last_run": ""
+	},
+	"add": {
+		"complete": "false",
+		"errors": "false",
+		"last_run": ""
+	},
+	"load": {
+		"complete": "false",
+		"errors": "false",
+		"last_run": ""
+	},
+	"columns": {
+	}
+}
+
