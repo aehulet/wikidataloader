@@ -45,6 +45,26 @@ function writeGridData() {
 
 }
 
+function loadStatusForm() {
+    let status_form = document.getElementById('workflow_status');
+    status_form.style.display = 'block';
+    $('#out_complete').text(meta_json['outputs']['complete']);
+    $('#out_errors').text(meta_json['outputs']['errors']);
+    $('#out_last_run').text(meta_json['outputs']['last_run']);
+
+    $('#rec_complete').text(meta_json['reconcile']['complete']);
+    $('#rec_errors').text(meta_json['reconcile']['errors']);
+    $('#rec_last_run').text(meta_json['reconcile']['last_run']);
+
+    $('#add_complete').text(meta_json['add']['complete']);
+    $('#add_errors').text(meta_json['add']['errors']);
+    $('#add_last_run').text(meta_json['add']['last_run']);
+
+    $('#load_complete').text(meta_json['load']['complete']);
+    $('#load_errors').text(meta_json['load']['errors']);
+    $('#load_last_run').text(meta_json['load']['last_run']);
+
+}
 function loadEditor() {
     //use hydrated columns json
     let editor = document.getElementById('col_editor');

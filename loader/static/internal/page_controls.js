@@ -26,9 +26,7 @@ function checkSelect() {
         $('#new_file_form').submit();
     }
 
-
 }
-
 
 function openFileDialog() {
     $('#file_opener').click();
@@ -39,8 +37,8 @@ function hideShowMenu() {
     let menu = document.getElementById('process_menu');
     let the_x, the_y;
     let rect = button.getBoundingClientRect();
-    the_x = (Math.trunc(rect.x) - 200).toString();
-    the_y = (Math.trunc(rect.y) + 30).toString();
+    the_x = (Math.trunc(rect.x) - 175).toString();
+    the_y = (Math.trunc(rect.y) + 35).toString();
     menu.style.left = the_x + 'px';
     menu.style.top = the_y + 'px';
 

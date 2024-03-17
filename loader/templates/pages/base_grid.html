@@ -105,18 +105,42 @@
 	<div id="err_msg">{{ err_msg }}</div>
 	<span id="current_file"> {{ current_file }} </span>
 
+	<div id="workflow_status">WORKFLOW STATUS<span class="close">&times;</span>
+		<div class="status" id="outputs">Create output columns:
+			<div class="status_item">complete: <span id="out_complete">slug</span></div>
+			<div class="status_item">errors: <span id="out_errors">slug</span></div>
+			<div class="status_item">last run: <span id="out_last_run">2024-01-20 05:17:00</span></div>
+		</div>
+		<div class="status" id="reconcile">Reconcile with Wikidata:
+			<div class="status_item">complete: <span id="rec_complete"></span></div>
+			<div class="status_item">errors: <span id="rec_errors"></span></div>
+			<div class="status_item">last run: <span id="rec_last_run"></span></div>
+		</div>
+		<div class="status" id="add">Add needed entities for items:
+			<div class="status_item">complete: <span id="add_complete"></span></div>
+			<div class="status_item">errors: <span id="add_errors"></span></div>
+			<div class="status_item">last run: <span id="add_last_run"></span></div>
+		</div>
+		<div class="status" id="load">Load items to Wikidata:
+			<div class="status_item">complete: <span id="load_complete"></span></div>
+			<div class="status_item">errors: <span id="load_errors"></span></div>
+			<div class="status_item">last run: <span id="load_last_run"></span></div>
+		</div>
+	</div>
 	<div id="process_menu">
-		<ul class="no-bullets">
-			<li id="step1" class="menu_item" onclick="addOutputColumns()">Step 1 - add output columns</li>
-			<li id="step2" class="menu_item">Step 2 - reconcile data</li>
-			<li id="step3" class="menu_item">Step 3 - add new entities</li>
-			<li id="step4" class="menu_item">Step 4 - upload items</li>
-		</ul>
+		<div id="edit_cols" class="menu_item" onclick="loadEditor()">Edit column properties</div>
+		<hr>
+		<div><i>workflow</i></div>
+		<div id="wf_status" class="menu_item" onclick="loadStatusForm()">Show workflow status</div>
+		<div id="step1" class="menu_item" onclick="addOutputColumns()">Step 1 - add output columns</div>
+		<div id="step2" class="menu_item">Step 2 - reconcile data</div>
+		<div id="step3" class="menu_item">Step 3 - add new entities</div>
+		<div id="step4" class="menu_item">Step 4 - upload items</div>
 	</div>
 
-	<button class="btn" id="menu_btn" onclick="hideShowMenu()">menu</button>
+	<button class="btn" id="menu_btn" onclick="hideShowMenu()"><img src="static/internal/menu.svg" alt="menu icon"></button>
 	<button class='btn' id="edit_btn" onclick="manageEdits()">Start Editing</button>
-	<button class='btn' id="header_btn" onclick="loadEditor()">Column Properties</button>
+	<!-- <button class='btn' id="header_btn" onclick="loadEditor()">Column Properties</button> -->
 
 	<div id="grid_wrapper">
 		<div id="myGrid" class="ag-theme-quartz"></div>

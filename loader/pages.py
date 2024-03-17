@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect
 from .utils import catch_err
 import json
+from datetime import datetime
 
 bp = Blueprint('pages', __name__)
 curr_file = 'Select a file to open.'
@@ -87,7 +88,8 @@ def write_metadata():
     fm = FileManager(curr_file)
     fm.load_data()
     selected = True
-    good_write = fm.write_metadata(request.get_json())
+    fm.replace_meta_dict(request.get_json())
+    good_write = fm.write_metadata()
 
     return redirect('/')
 
@@ -116,11 +118,20 @@ def upload_new_file():
 def add_output_columns():
     from .files import FileManager
     global curr_file, err_message
+    errs = False
+
     try:
         fm = FileManager(curr_file)
         fm.load_data()
         if not fm.add_output_columns():
-            err_message = 'The output columns could not be added.'
+            err_message = 'The application generated an error while creating output columns. Check the error log.'
+            errs = True
+        dt = datetime.now()
+        dt_str = dt.strftime('%Y-%m-%d %H:%M:%S')
+        the_dict = {'complete': True, 'errors': errs, 'last_run': dt_str}
+        fm.update_meta_dict('outputs', the_dict)
+        fm.write_metadata()
+
         return redirect('/')
 
     except Exception as e:

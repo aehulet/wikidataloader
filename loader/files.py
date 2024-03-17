@@ -111,17 +111,30 @@ class FileManager:
             catch_err(e, 'FileManager.init_metadata')
             return False
 
-    def write_metadata(self, the_json):
-        # todo: fix write of json to file
+    def write_metadata(self):
+        """Writes the meta_dict dictionary to json file."""
         the_file = self.get_folder() + '.json'
         the_full_path = get_file_path(the_file)
-        json_str = json.dumps(the_json, indent=4)
+        json_str = json.dumps(self.meta_dict, indent=4)
         try:
             with open(the_full_path, 'w') as j:
                 j.write(json_str)
                 return True
         except Exception as e:
             catch_err(e, "FileManager.write_metadata")
+            return False
+
+    def replace_meta_dict(self, json_as_dict):
+        """Receives json-as-dict from web page and updates self.meta_dict."""
+        self.meta_dict = json_as_dict
+        return True
+
+    def update_meta_dict(self, key, value_dict):
+        """Updates a particular property in self.meta_dict."""
+        try:
+            self.meta_dict[key] = value_dict
+        except Exception as e:
+            catch_err(e, "FileManager.update_meta_dict")
             return False
 
     def write_data(self, data):
